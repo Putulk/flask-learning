@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SignUp Form</title>
+</head>
+<body>
+    <p id="home">Hi Welcome !!!</p>
+    <p id="day_of_week">Today is {{day_of_week}} </br> Time is {{datetime}}</p>
+    <form method="POST" action="/submit">
+        <label for="fname">First Name:</label><br>
+        <input type="text" id="fname" name="fname" placeholder="Enter your first name"><br><br>
+
+        <label for="lname">Last Name:</label><br>
+        <input type="text" id="lname" name="lname" placeholder="Enter your last name"><br><br>
+
+        <label for="email">Email:</label><br>
+        <input type="email" id="email" name="email" placeholder="Enter your email"><br><br>
+
+        <label for="password">Password:</label><br>
+        <input type="password" id="password" name="password" placeholder="Enter your password"><br><br>
+
+        <label for="confirm_password">Last Name:</label><br>
+        <input type="password" id="confirm_password" name="confirm_password" placeholder="Confirm your password"><br><br>
+
+        <input type="submit" value="Submit">
+    </form>
+</body>
+<style>
+    body {
+        background-color: lightblue;
+    }
+    p#home {
+        color: black;
+        text-align: center;
+        font-size: 40px;
+        font-family: Arial, Helvetica, sans-serif;
+    }
+    p#day_of_week {
+        color: red;
+        text-align: center;
+        font-size: 30px;
+        font-family: Arial, Helvetica, sans-serif;
+    }
+    form {
+        margin: auto;
+        width: 50%;
+        border: 3px solid black;
+        padding: 10px;
+        font-size: 20px;
+        font-family: Arial, Helvetica, sans-serif;
+    }
+    input[type=text], input[type=email], input[type=password] {
+        width: 100%;
+        padding: 12px 20px;
+        margin: 8px 0;
+        box-sizing: border-box;
+        border: 2px solid black;
+        border-radius: 4px;
+    }
+    input[type=submit] {
+        width: 100%;
+        background-color: black;
+        color: white;
+        padding: 14px 20px;
+        margin: 8px 0;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    input[type=submit]:hover {
+        background-color: grey;
+    }   
+</style>
+</html>
