@@ -56,6 +56,25 @@ def get_data():
     except json.JSONDecodeError:
         return jsonify({"error": "Error decoding JSON file"}), 500
 
+@app.route('/')
+def home(): 
+    day_of_week = datetime.now().strftime('%A')
+    print(f"Today is {day_of_week}")
+    return render_template('index.html', day_of_week = day_of_week, datetime=datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+
+
+@app.route('/submit', methods=['POST'])
+def submit():
+    formdata = dict(request.form)
+    print("Received form data:", formdata)  # Debug print
+    result = collection.insert_one(formdata)
+    print("Inserted ID:", result.inserted_id)  # Debug print
+    return jsonify({"status": "success", "inserted_id": str(result.inserted_id)})
+
+@app.route('/view', methods=['GET'])
+def view():
+    data = list(collection.find({}, {'_id': 0}))
+    return jsonify(data)
 
 if __name__ == '__main__':
     app.run(debug=True)
