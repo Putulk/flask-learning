@@ -1,3 +1,4 @@
+        window.onload = fetchItems;
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,7 +11,7 @@
                 const response = await fetch('/items');
                 const items = await response.json();
                 const itemList = document.getElementById('itemList');
-
+                itemList.innerHTML = '';
                 items.forEach(item => {
                     const listItem = document.createElement('li');
                     listItem.textContent = `${item.itemName}: ${item.itemDescription}`;
@@ -20,13 +21,13 @@
                 console.error('Error fetching items:', error);
             }
         }
-
-        window.onload = fetchItems; // Fetch items when the page loads
+        window.onload = fetchItems;
     </script>
 </head>
 <body>
     <h1>To-Do List</h1>
-    <form action="/submit-todo" method="POST">
+    <!-- action updated to match backend route /submittodoitem -->
+    <form action="/submittodoitem" method="POST">
         <label for="itemName">Item Name:</label>
         <input type="text" id="itemName" name="itemName" required>
         <br>
@@ -37,6 +38,6 @@
     </form>
 
     <h2>Existing Items:</h2>
-    <ul id="itemList"></ul> <!-- List to display fetched items -->
+    <ul id="itemList"></ul>
 </body>
 </html>
