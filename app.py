@@ -76,5 +76,24 @@ def view():
     data = list(collection.find({}, {'_id': 0}))
     return jsonify(data)
 
+@app.route('/items', methods=['GET'])
+def get_items():
+    try:
+        with open('items.json', 'r') as f:
+            items = json.load(f)
+        return jsonify(items)
+    except FileNotFoundError:
+        return jsonify({"error": "Items file not found"}), 404
+    except json.JSONDecodeError:
+        return jsonify({"error": "Error decoding JSON file"}), 500
+
+@app.route('/submit-todo', methods=['POST'])
+def submit_todo():
+    item_name = request.form.get('itemName')
+    item_description = request.form.get('itemDescription')
+    # Here you can add logic to save the To-Do item to a database or file
+    print(f"Item Name: {item_name}, Item Description: {item_description}")  # Debug print
+    return jsonify({"status": "success", "item_name": item_name, "item_description": item_description})
+
 if __name__ == '__main__':
     app.run(debug=True)
