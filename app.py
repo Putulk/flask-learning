@@ -87,13 +87,24 @@ def get_items():
     except json.JSONDecodeError:
         return jsonify({"error": "Error decoding JSON file"}), 500
 
-@app.route('/submit-todo', methods=['POST'])
-def submit_todo():
-    item_name = request.form.get('itemName')
-    item_description = request.form.get('itemDescription')
-    # Here you can add logic to save the To-Do item to a database or file
-    print(f"Item Name: {item_name}, Item Description: {item_description}")  # Debug print
-    return jsonify({"status": "success", "item_name": item_name, "item_description": item_description})
+@app.route('/submittodoitem', methods=['POST'])
+def submit_todo_item():
+    # Accept form-encoded POST from frontend form (or JSON)
+    item_name = request.form.get('itemName') or request.json.get('itemName') if request.is_json else None
+    item_description = request.form.get('itemDescription') or request.json.get('itemDescription') if request.is_json else None
+
+    if not item_name or not item_description:
+        return jsonify({"error": "itemName and itemDescription are required"}), 400
+
+    # insert into MongoDB collection 'todo_items'
+    todo_collection = db.todo_items
+    doc = {
+        "itemName": item_name,
+        "itemDescription": item_description,
+        "created_at": datetime.utcnow().isoformat()
+    }
+    result = todo_collection.insert_one(doc)
+    return jsonify({"status": "success", "inserted_id": str(result.inserted_id)}), 201
 
 if __name__ == '__main__':
     app.run(debug=True)
