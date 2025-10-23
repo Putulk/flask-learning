@@ -10,33 +10,104 @@
                 const response = await fetch('/items');
                 const items = await response.json();
                 const itemList = document.getElementById('itemList');
-
+                itemList.innerHTML = '';
                 items.forEach(item => {
                     const listItem = document.createElement('li');
-                    listItem.textContent = `${item.itemName}: ${item.itemDescription}`;
+                    listItem.textContent = `${item.itemId || item.id || ''} ${item.itemName}: ${item.itemDescription} (UUID:${item.itemUUID || ''} Hash:${item.itemHash || ''})`;
                     itemList.appendChild(listItem);
                 });
             } catch (error) {
                 console.error('Error fetching items:', error);
             }
         }
-
-        window.onload = fetchItems; // Fetch items when the page loads
+        window.onload = fetchItems;
     </script>
 </head>
 <body>
     <h1>To-Do List</h1>
-    <form action="/submit-todo" method="POST">
+    <!-- action updated to match backend route /submittodoitem -->
+    <form action="/submittodoitem" method="POST">
+        <label for="itemId">Item ID:</label>
+        <input type="text" id="itemId" name="itemId">
+        <br>
+
+        <label for="itemUUID">Item UUID:</label>
+        <input type="text" id="itemUUID" name="itemUUID">
+        <br>
+
+        <label for="itemHash">Item Hash:</label>
+        <input type="text" id="itemHash" name="itemHash">
+        <br>
+
         <label for="itemName">Item Name:</label>
         <input type="text" id="itemName" name="itemName" required>
         <br>
+
         <label for="itemDescription">Item Description:</label>
         <textarea id="itemDescription" name="itemDescription" required></textarea>
         <br>
+
         <button type="submit">Add Item</button>
     </form>
 
     <h2>Existing Items:</h2>
-    <ul id="itemList"></ul> <!-- List to display fetched items -->
+    <ul id="itemList"></ul>
+</body>
+</html>
+```// filepath: /Users/gupta/Desktop/devops/flask-tutorial/templates/todo.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do Page</title>
+    <script>
+        async function fetchItems() {
+            try {
+                const response = await fetch('/items');
+                const items = await response.json();
+                const itemList = document.getElementById('itemList');
+                itemList.innerHTML = '';
+                items.forEach(item => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = `${item.itemId || item.id || ''} ${item.itemName}: ${item.itemDescription} (UUID:${item.itemUUID || ''} Hash:${item.itemHash || ''})`;
+                    itemList.appendChild(listItem);
+                });
+            } catch (error) {
+                console.error('Error fetching items:', error);
+            }
+        }
+        window.onload = fetchItems;
+    </script>
+</head>
+<body>
+    <h1>To-Do List</h1>
+    <!-- action updated to match backend route /submittodoitem -->
+    <form action="/submittodoitem" method="POST">
+        <label for="itemId">Item ID:</label>
+        <input type="text" id="itemId" name="itemId">
+        <br>
+
+        <label for="itemUUID">Item UUID:</label>
+        <input type="text" id="itemUUID" name="itemUUID">
+        <br>
+
+        <label for="itemHash">Item Hash:</label>
+        <input type="text" id="itemHash" name="itemHash">
+        <br>
+
+        <label for="itemName">Item Name:</label>
+        <input type="text" id="itemName" name="itemName" required>
+        <br>
+
+        <label for="itemDescription">Item Description:</label>
+        <textarea id="itemDescription" name="itemDescription" required></textarea>
+        <br>
+
+        <button type="submit">Add Item</button>
+    </form>
+
+    <h2>Existing Items:</h2>
+    <ul id="itemList"></ul>
 </body>
 </html>
