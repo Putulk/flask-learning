@@ -5,6 +5,9 @@ from pymongo import MongoClient
 from dotenv import load_dotenv
 import os
 import json
+from bson import ObjectId
+import uuid
+import hashlib
 
 load_dotenv()
 
@@ -26,6 +29,24 @@ def read_data():
         except json.JSONDecodeError:
             return []
         
+def _serialize_doc(doc):
+    """Convert ObjectId (and nested ObjectId) to str for JSON response."""
+    if isinstance(doc, list):
+        return [_serialize_doc(d) for d in doc]
+    if not isinstance(doc, dict):
+        return doc
+    out = {}
+    for k, v in doc.items():
+        if isinstance(v, ObjectId):
+            out[k] = str(v)
+        elif isinstance(v, dict):
+            out[k] = _serialize_doc(v)
+        elif isinstance(v, list):
+            out[k] = [_serialize_doc(i) for i in v]
+        else:
+            out[k] = v
+    return out
+
 
 @app.route('/api', methods=['POST'])
 def add_data():
@@ -87,24 +108,54 @@ def get_items():
     except json.JSONDecodeError:
         return jsonify({"error": "Error decoding JSON file"}), 500
 
-@app.route('/submittodoitem', methods=['POST'])
+@app.route('/submittodoitem', methods=['GET', 'POST'])
 def submit_todo_item():
+    if request.method == 'GET':
+        return redirect(url_for('todo'))  # optional: redirect browser GETs to the form
+
     # Accept form-encoded POST from frontend form (or JSON)
-    item_name = request.form.get('itemName') or request.json.get('itemName') if request.is_json else None
-    item_description = request.form.get('itemDescription') or request.json.get('itemDescription') if request.is_json else None
+    if request.is_json:
+        payload = request.get_json()
+        item_name = payload.get('itemName')
+        item_description = payload.get('itemDescription')
+        item_id = payload.get('itemId')
+        item_uuid = payload.get('itemUUID')
+        item_hash = payload.get('itemHash')
+    else:
+        item_name = request.form.get('itemName')
+        item_description = request.form.get('itemDescription')
+        item_id = request.form.get('itemId')
+        item_uuid = request.form.get('itemUUID')
+        item_hash = request.form.get('itemHash')
 
     if not item_name or not item_description:
         return jsonify({"error": "itemName and itemDescription are required"}), 400
 
+    # generate fallbacks if missing
+    if not item_id:
+        item_id = int(datetime.utcnow().timestamp())
+    if not item_uuid:
+        item_uuid = str(uuid.uuid4())
+    if not item_hash:
+        h = hashlib.sha256()
+        h.update(f"{item_name}|{item_description}|{item_uuid}".encode('utf-8'))
+        item_hash = h.hexdigest()
+
     # insert into MongoDB collection 'todo_items'
     todo_collection = db.todo_items
     doc = {
+        "itemId": item_id,
+        "itemUUID": item_uuid,
+        "itemHash": item_hash,
         "itemName": item_name,
         "itemDescription": item_description,
         "created_at": datetime.utcnow().isoformat()
     }
     result = todo_collection.insert_one(doc)
-    return jsonify({"status": "success", "inserted_id": str(result.inserted_id)}), 201
+
+    # serialize to remove ObjectId (PyMongo adds _id to `doc` in-place)
+    serialized = _serialize_doc(doc)
+    return jsonify({"status": "success", "inserted_id": str(result.inserted_id), "item": serialized}), 201
 
 if __name__ == '__main__':
     app.run(debug=True)
